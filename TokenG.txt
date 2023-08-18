@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    uint256 public buyFee = 15; // Percentage
+    uint256 public sellFee = 15; // Percentage
+    uint256 public finalBuyFee = 2; // Percentage
+    uint256 public finalSellFee = 2; // Percentage
+    uint256 public transFee = 15; // Percentage
+    address public marketingWallet;
+    bool public tradingOpen = false;
+
+    mapping (address => bool) public feeReceivers;
+
+    constructor() ERC20("MyToken", "MYTK") {
+        _mint(msg.sender, 10_000_000 * 10**18);
+    }
+
+    function setMarketingWallet(address _marketingWallet) public onlyOwner {
+        marketingWallet = _marketingWallet;
+    }
+
+    function setTransFee(uint256 _transFee) public onlyOwner {
+        transFee = _transFee;
+    }
+
+    function setFeeReceivers(address[] memory _receivers, bool[] memory _statuses) public onlyOwner {
+        require(_receivers.length == _statuses.length, "Arrays must be of equal length");
+        for (uint i = 0; i < _receivers.length; i++) {
+            feeReceivers[_receivers[i]] = _statuses[i];
+        }
+    }
+
+    function openTrading() public onlyOwner {
+        require(!tradingOpen, "Trading already open");
+        tradingOpen = true;
+    }
+
+    function clearStuckBalance(uint256 percentage) public onlyOwner {
+        require(percentage <= 100, "Percentage too high");
+        uint256 amountToSend = address(this).balance * percentage / 100;
+        payable(marketingWallet).transfer(amountToSend);
+    }
+
+    function renounceOwnership() public override onlyOwner {
+        buyFee = finalBuyFee;
+        sellFee = finalSellFee;
+        super.renounceOwnership();
+    }
+
+    function _transfer(address sender, address recipient, uint256 amount) internal override {
+        require(tradingOpen, "Trading is not open yet");
+
+        uint256 feeAmount = amount * transFee / 100;
+        uint256 netAmount = amount - feeAmount;
+        payable(marketingWallet).transfer(feeAmount);
+
+        super._transfer(sender, recipient, netAmount);
+    }
+
+    // To receive Ether
+    receive() external payable {}
+}
