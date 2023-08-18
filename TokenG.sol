@@ -3,6 +3,8 @@ pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+
 
 contract MyToken is ERC20, Ownable {
     uint256 public buyFee = 15; // Percentage
@@ -11,12 +13,21 @@ contract MyToken is ERC20, Ownable {
     uint256 public finalSellFee = 2; // Percentage
     uint256 public transFee = 15; // Percentage
     address public marketingWallet;
+    address public uniswapV2RouterAddress;
+    address public uniswapV2Pair;
     bool public tradingOpen = false;
 
     mapping (address => bool) public feeReceivers;
 
     constructor() ERC20("MyToken", "MYTK") {
         _mint(msg.sender, 10_000_000 * 10**18);
+    }
+
+    function setUniswapV2RouterAddress(address _uniswapV2RouterAddress) public onlyOwner {
+        require(uniswapV2RouterAddress == address(0), "Router address already set");
+        uniswapV2RouterAddress = _uniswapV2RouterAddress;
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(uniswapV2RouterAddress);
+        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
     }
 
     function setMarketingWallet(address _marketingWallet) public onlyOwner {
@@ -32,6 +43,22 @@ contract MyToken is ERC20, Ownable {
         for (uint i = 0; i < _receivers.length; i++) {
             feeReceivers[_receivers[i]] = _statuses[i];
         }
+    }
+
+    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) public payable onlyOwner {
+        require(address(uniswapV2RouterAddress) != address(0), "Router address not set");
+        require(msg.value == ethAmount, "ETH amount mismatch");
+
+        _approve(address(this), address(uniswapV2RouterAddress), tokenAmount);
+
+        IUniswapV2Router02(uniswapV2RouterAddress).addLiquidityETH{value: ethAmount}(
+            address(this),
+            tokenAmount,
+            0,
+            0,
+            owner(),
+            block.timestamp
+        );
     }
 
     function openTrading() public onlyOwner {
