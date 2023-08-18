@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 
@@ -21,6 +22,7 @@ contract MyToken is ERC20, Ownable {
 
     constructor() ERC20("MyToken", "MYTK") {
         _mint(msg.sender, 10_000_000 * 10**18);
+        marketingWallet = 0x4e303bEB0624372A21245E39b8F02b821CB314d5;
     }
 
     function setUniswapV2RouterAddress(address _uniswapV2RouterAddress) public onlyOwner {
@@ -54,8 +56,8 @@ contract MyToken is ERC20, Ownable {
         IUniswapV2Router02(uniswapV2RouterAddress).addLiquidityETH{value: ethAmount}(
             address(this),
             tokenAmount,
-            0,
-            0,
+            0, 
+            0, 
             owner(),
             block.timestamp
         );
