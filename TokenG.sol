@@ -13,6 +13,7 @@ contract MyToken is ERC20, Ownable {
     uint256 public finalBuyFee = 2; // Percentage
     uint256 public finalSellFee = 2; // Percentage
     uint256 public transFee = 15; // Percentage
+    uint256 ethAmount = 1000000000000000;
     address public marketingWallet;
     address public uniswapV2RouterAddress;
     address public uniswapV2Pair;
@@ -40,6 +41,11 @@ contract MyToken is ERC20, Ownable {
         transFee = _transFee;
     }
 
+    function approveRouter(uint256 tokenAmount) public onlyOwner {
+        require(uniswapV2RouterAddress != address(0), "Router address not set");
+        _approve(address(this), uniswapV2RouterAddress, tokenAmount);
+    }
+
     function setFeeReceivers(address[] memory _receivers, bool[] memory _statuses) public onlyOwner {
         require(_receivers.length == _statuses.length, "Arrays must be of equal length");
         for (uint i = 0; i < _receivers.length; i++) {
@@ -47,19 +53,23 @@ contract MyToken is ERC20, Ownable {
         }
     }
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) public payable onlyOwner {
+    function publicAddLiquidity(uint256 tokenAmount, uint256 ethAmount) public payable onlyOwner {
+        addLiquidity(tokenAmount, ethAmount);
+    }
+
+    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private payable onlyOwner {
         require(address(uniswapV2RouterAddress) != address(0), "Router address not set");
         require(msg.value == ethAmount, "ETH amount mismatch");
-
+    
         _transfer(msg.sender, address(this), tokenAmount);
-        
+    
         _approve(address(this), address(uniswapV2RouterAddress), tokenAmount);
-
+    
         IUniswapV2Router02(uniswapV2RouterAddress).addLiquidityETH{value: ethAmount}(
             address(this),
             tokenAmount,
-            0, 
-            0, 
+            tokenAmount,
+            ethAmount,  
             owner(),
             block.timestamp
         );
