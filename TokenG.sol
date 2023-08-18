@@ -13,12 +13,13 @@ contract MyToken is ERC20, Ownable {
     uint256 public finalBuyFee = 2; // Percentage
     uint256 public finalSellFee = 2; // Percentage
     uint256 public transFee = 15; // Percentage
-    uint256 ethAmount = 1000000000000000;
+
     address public marketingWallet;
     address public uniswapV2RouterAddress;
     address public uniswapV2Pair;
     bool public tradingOpen = false;
-
+    uint256 initialEthAmount = 1000000000000000;
+    
     mapping (address => bool) public feeReceivers;
 
     constructor() ERC20("MyToken", "MYTK") {
@@ -57,14 +58,14 @@ contract MyToken is ERC20, Ownable {
         addLiquidity(tokenAmount, ethAmount);
     }
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private payable onlyOwner {
+    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private onlyOwner {
         require(address(uniswapV2RouterAddress) != address(0), "Router address not set");
         require(msg.value == ethAmount, "ETH amount mismatch");
-    
+
         _transfer(msg.sender, address(this), tokenAmount);
-    
+
         _approve(address(this), address(uniswapV2RouterAddress), tokenAmount);
-    
+
         IUniswapV2Router02(uniswapV2RouterAddress).addLiquidityETH{value: ethAmount}(
             address(this),
             tokenAmount,
