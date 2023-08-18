@@ -26,11 +26,11 @@ contract MyToken is ERC20, Ownable {
     }
 
     function setUniswapV2RouterAddress(address _uniswapV2RouterAddress) public onlyOwner {
-        require(uniswapV2RouterAddress == address(0), "Router address already set");
-        uniswapV2RouterAddress = _uniswapV2RouterAddress;
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
-    }
+         require(uniswapV2RouterAddress == address(0), "Router address already set");
+         uniswapV2RouterAddress = _uniswapV2RouterAddress;
+         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(_uniswapV2RouterAddress);
+         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
+     }
 
     function setMarketingWallet(address _marketingWallet) public onlyOwner {
         marketingWallet = _marketingWallet;
@@ -51,6 +51,8 @@ contract MyToken is ERC20, Ownable {
         require(address(uniswapV2RouterAddress) != address(0), "Router address not set");
         require(msg.value == ethAmount, "ETH amount mismatch");
 
+        _transfer(msg.sender, address(this), tokenAmount);
+        
         _approve(address(this), address(uniswapV2RouterAddress), tokenAmount);
 
         IUniswapV2Router02(uniswapV2RouterAddress).addLiquidityETH{value: ethAmount}(
@@ -85,11 +87,10 @@ contract MyToken is ERC20, Ownable {
 
         uint256 feeAmount = amount * transFee / 100;
         uint256 netAmount = amount - feeAmount;
-        payable(marketingWallet).transfer(feeAmount);
-
+        
+        super._transfer(sender, marketingWallet, feeAmount);
         super._transfer(sender, recipient, netAmount);
     }
 
-    // To receive Ether
     receive() external payable {}
 }
