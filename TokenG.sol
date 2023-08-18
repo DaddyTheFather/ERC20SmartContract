@@ -28,7 +28,7 @@ contract MyToken is ERC20, Ownable {
     function setUniswapV2RouterAddress(address _uniswapV2RouterAddress) public onlyOwner {
         require(uniswapV2RouterAddress == address(0), "Router address already set");
         uniswapV2RouterAddress = _uniswapV2RouterAddress;
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(uniswapV2RouterAddress);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
     }
 
