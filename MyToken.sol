@@ -538,6 +538,8 @@ constructor() {
     }
 
     function _transfer(address from, address to, uint256 amount) private {
+        require(amount <= maxTxAmount, "Transfer amount exceeds the maxTxAmount");
+        require(_tOwned[to] + amount <= maxWalletAmount, "New balance would exceed the maxWalletAmount");
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
