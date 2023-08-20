@@ -1,4 +1,4 @@
-/**
+/** by ed
 TokenName is available on Telegram as @TokenName
 
 twitter.com/yourtwitter
