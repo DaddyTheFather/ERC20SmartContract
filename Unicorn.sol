@@ -379,7 +379,7 @@ abstract contract Ownable is Context {
     }
 }
 // Remember to change "MyToken" name to your token name
-contract MyToken is Context, IERC20, Ownable {
+contract Unicorn is Context, IERC20, Ownable {
 
     // TOKENOMICS START ==========================================================>
 
@@ -401,8 +401,8 @@ contract MyToken is Context, IERC20, Ownable {
     // EDIT FROM HERE ================>
 
     address payable public marketingWallet = payable(0x121259519b182Bd4230611499A8d05C82AEB6F4f);
-    uint256 private _tTotal = 150_000_000_000_000 ether;  // 1bil default Total Supply
-    string public constant name = "Unicorn";  // Token Name
+    uint256 private _tTotal = 150_000_000_000_000 ether;  // Total Supply 150000000000000
+    string public constant name = "Unicorn";  // Token Name  
     string public constant symbol = "UNICORN";  // Token Symbol
     uint256 public initialBuyFee = 1;  // Initial Buy Fee (up to 15%)
     uint256 public initialSellFee = 1;  // Initial Sell Fee (up to 15%)
@@ -410,7 +410,7 @@ contract MyToken is Context, IERC20, Ownable {
     uint256 public finalSellFee = 1;  // 2% Final Fee (during renounce)
     uint256 public maxTxAmount = 0 ether;  // 1% default
     uint256 public maxWalletAmount = 0 ether;  // 1% default
-    uint256 public minimumTokensBeforeSwap = 0 ether;  // 0.01% default (Sets a threshold of tokens that must be collected in the contract before a swap operation is triggered)
+    uint256 public minimumTokensBeforeSwap = 15_000_000_000 ether;  // 0.01% default (Sets a threshold of tokens that must be collected in the contract before a swap operation is triggered)
 
     // EDIT ENDS HERE ================>
 
