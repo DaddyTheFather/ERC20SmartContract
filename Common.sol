@@ -119,11 +119,11 @@ contract Common is Context, IERC20, Ownable {
     uint256 private _initialBuyTax=15;
     uint256 private _initialSellTax=25;
     uint256 private _finalBuyTax=2;
-    uint256 private _finalSellTax=2;
-    uint256 private _reduceBuyTaxAt;
-    uint256 private _reduceSellTaxAt;
-    uint256 private _preventSwapBefore;
-    uint256 private _buyCount;
+    uint256 private _finalSellTax=1;
+    uint256 private _reduceBuyTaxAt=30;
+    uint256 private _reduceSellTaxAt=30;
+    uint256 private _preventSwapBefore=30;
+    uint256 private _buyCount=0;
 
     uint8 private constant _decimals = 8;
     uint256 private constant _tTotal = 1000000000 * 10**_decimals;
